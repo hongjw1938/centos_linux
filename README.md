@@ -1,0 +1,143 @@
+### CentOS를 통한 리눅스 실습
+### 0. 설치
+- 설치
+    - windows 10이 아니라면 5.0.x버전을 무료로 설치하면 됨.
+        - <a href="https://my.vmware.com/en/web/vmware/free#desktop_end_user_computing/vmware_workstation_player/5_0">참조주소</a>
+    - windows 10이라면 다른 버전을 설치해야 하는 듯
+        - <a href="https://my.vmware.com/en/web/vmware/free#desktop_end_user_computing/vmware_workstation_player/14_0">다운로드 주소</a>
+- 설치 과정
+    - 대부분 기본설정으로 그냥 설치
+    - check for product updates on startup은 해제하자. 해당 내용은 vmware player가 업데이될 때마다 자동으로 알려주는 기능임
+    - 설치가 완료되면 finish하고 바탕화면의 player를 더블 클릭하여 실행한다.
+    - 라이센스가 없으면 그냥 free버전을 사용하면 된다.
+- 가상머신 만들기
+    - 가상머신은 *.vmdk라는 확장명을 포함한 몇 개의 관련 파일로 생성됨.
+    - 디스크 공간에 여유가 있는 드라이브(30GB이상)에 CentOS라는 폴더를 만들자.
+    - 아래에 Server, Server(B), Client, WinClient라는 폴더를 생성
+    - 만들었으면 이제 Server를 설치할 가상머신을 CentOS/Server에 설치
+- Server
+    - VMware를 켜고 우측의 Create a New Virtual Machine클릭
+    - I will install the operating system later 선택
+    - Next - linux - CentOS 7 64 bit선택 후 설치
+    - 그 다음 경로는 방금 만든 CentOS폴더를 선택 후 Next, 크기 설정은 냅두고 Next
+    - finish까지 했으면 머신이 하나 만들어진다. 이제, 우측의 Edit virtual machine settings 클릭
+    - settings
+        - RAM은 최소 512MB는 되어야 함. 본인 컴퓨터가 RAM 4 GB 이상이면 1GB로 냅두고 넘기자
+        - Hard Disk는 20GB로 했었는데 Remove로 제거하고 Add해서 80으로 새로 만들어도 된다.
+            - 다 기본으로 하고 넘겨도 됨.(실제 용량이 80GB가 안되더라도 상관 없다. Allocate now만 선택하지 않도록)
+        - 나머지는 내버려 두고, 아래에 print, Floppy, Sound card등은 삭제해도 됨
+    - 만약 가상머신을 생성하는게 아니라 기존 것을 가져오고 싶은 경우, vmx파일을 open시키면 된다.
+    - 가상머신 부팅
+        - 부팅시 만약 VT-x를 사용할 수 없다는 오류가 나면 BIOS에서 system configuration의 가상화 기술을 enabled시키면 된다.
+        - 가상머신을 첫 부팅시 software update창이 나오면 설치하면 된다.
+        - 아마 그 다음에는 운영체제를 찾지 못했다고 할 것이다. 일단 끄자
+        - 다시 부팅해서 F2를 눌러 가상머신 BIOS로 진입하자
+        - 다른 컴퓨터와 차이가 없는 일반 컴퓨터와 같다는 것을 알 수 있다. 참고로, 마우스를 host로 다시 가져오고 싶으면 ctrl + alt임
+- Server(B), Client, WinClient만들기
+    - 책을 참조하여 만든다.
+    - 똑같이 만들되 메모리는 512, 512, 1GB
+    - 용량은 40, 40, 20
+- 가상머신의 이점
+    - 하드웨어를 장착해 테스트 가능
+    - 실무와 같은 환경을 실습할 수 있음
+    - 여러 운영체제를 설치해 테스트 가능, 새로운 시스템 도입 전 테스트 가능
+- 네트워크 설정
+    - cmd켜고 ipconfig해보면 vmnet8이라는 부분이 생겼을 것이다. 해당 내용의 ipv4를 기억해두자
+    - 여기서는 해당 ip주소를 변경해서 실습에 문제가 없도록 한다.
+    - 이를 위해서 network editor를 사용하기 위해 vmnetcfg를 설치해야 한다. 검색해서 설치한다.
+    - 압축을 풀고 해당 응용프로그램을 vmware player가 설치된 경로에 넣으면 된다. 아마 C:\Program Files (x86)\VMware\VMware Player일 것.
+    - 응용프로그램을 실행해 VMnet8을 클릭해 setting을 바꾸는데 subnet의 3번째 부분만 111로 바꾸고 apply한다.
+    - command에서 ipconfig해보면 바뀐 것을 확인할 수 있을 것이다.
+    - 네트워크
+        - 192.168.111.1이라는 가상 ip는 host 컴퓨터의 주소로써 할당된다.
+        - 192.168.111.2는 게이트웨이이자 DNS서버로 역할을 하는 가상 장치의 ip이다.
+        - Server와 Server(B)는 192.168.111.100, 200으로 각각 할당하며 Client, WinClient는 자동할당된다.(DHCP에 의해서)
+        - 192.168.111.254는 DHCP서버 역할을 하는 가상의 주소다.
+- 호스트 OS, 게스트 OS 파일 전송
+    - iso파일로 만들어 전송한다. iso는 DVD나 CD의 내용을 하나의 파일로 제작해 놓은 것.
+    - 혹은 WinSCP를 사용하자. 사실 이게 더 편함. 알아서 다운받자.
+- CentOS 설치
+    - Server
+        - <a href="http://archive.kernel.org/centos-vault/7.0.1406/isos/x86_64/">여기</a>에 들어가서 iso파일(위에서 2번째)을 다운 받는다. 약 4G
+        - VMware player를 켜고 server를 클릭 후 edit을 눌른 다음, CD/DVD를 선택하고서 다운로드한 파일을 넣고 ok한다.
+        - 그 다음 Server를 부팅해보자.
+            - 만약 iso파일을 넣었는데도 안된다면, CD/DVD부분에 connect at power on이 체크되어 있는지 확인하자
+        - 부팅하면 install할 것인지 묻는다. install한다.
+        - 언어 : korean선택. 안나오면 검색
+        - 키보드 : 영어(미국)추가 후 위로 그것을 맨 위로
+        - 소프트웨어 선택 : 개발 및 참조를 위한 워크스테이션
+        - 네트워크 및 호스트 이름 : 켬
+        - 설치 대상 : 파티션 설정 - 표준 파티션 : swap에 6G, 나머지는 루트
+        - 이제 다음으로 넘기면 암호를 설정할 수 있다. 암호는 알아서 설정할 것.
+        - 이후 대기하면 약 1452개의 패키지를 설치하여야 하므로 시간이 필요하다. 대기한다.
+        - 설치가 끝났으면 재부팅한다.
+        - 첫 행에서 그냥 enter하고 약관에 동의한 다음 설정완료
+        - kdump는 비활성화한다.
+        - 재부팅하고 나면 root로 로그인한다. 목록에 없습니까?를 누르고 로그인
+        - 언어는 한국어가 자동 선택이며 그 뒤에 한국어 2개 나오는데 아래쪽은 -로 지운다. 그리고 쭉 넘어가고 끝나면 컴퓨터를 끈다.
+    - Client
+        - 다 같은데 소프트웨어 선택에서 GNOME 데스크탑을 선택한다.
+        - 그리고 파티션은 나누지 않고 그대로 실행. 나머지는 같음
+    - Server(B)
+        - 텍스트 모드로 설치할 것이다.
+        - 소프트웨어 선택은 최소설치로 내버려둔다.
+        - 네트워크는 당연히 켜고 설치대상 부분은 변경한다.
+        - 파티션은 swap, /로 나누고 기존 Server와 동일하게 한다.
+        - 암호는 설정하고 사용자는 생성하지 않아도 된다.
+        - 재부팅하고 root로 로그인해본다.
+    - 추가설정
+        - Server를 켜고 root login한 다음, 좌측의 프로그램 - 소프트웨어를 켠다
+        - 최신 패키지, 전용 패키지만 부분을 모두 끈다.
+        - 우측의 root를 클릭하고 알림을 끈다.
+        - 그 외에 repository clean을 위해서 아래를 수행(터미널을 켠다)
+            - su -
+            - cd /etc/yum.repos.d/
+            - mv CentOS-Base.repo CentOS-Base.repo.bak
+            - wget http://download.hanbit.co.kr/centos/7/CentOS-Base.repo
+            - chmod 644 *
+            - rm -f *.repo~
+            - ls
+            - yum clean all
+            - 근데 꼭 하진 않아도 됨. 만약 다른 프로세스가 yum을 붙잡고 있는 경우
+            - ps -aux | grep yum을 해서 해당 프로세스 pid를 알아내고
+            - kill -9 [pid]를 해준다. 그리고 다시 clean up
+        - 네트워크 설정
+            - cd /etc/sysconfig/network-scripts
+            - gedit ifcfg-xxxxxx(lo말고 다른거)
+                - 해당 내용이 ens32가 아니라면 그 내용을 기억해두자. 버전에 따라 다를 수 있다..
+                - 나는 eno16777728
+            - 아래와 같이 수정
+            -   BOOTPROTO=none
+            -   IPADDR=192.168.111.100
+            -   NETMASK=255.255.255.0
+            -   GATEWAY=192.168.111.2
+            -   DNS1 = 192.168.111.2
+        - 보안 끄기
+            - gedit /etc/sysconfig/seliux에서 enforcing을 disabled로
+            - 보안을 끄는 것은 좋은 것은 아니지만, 실습을 위해 일단 해둔다.
+        - 화면 보호기 제거
+            - 우측의 root - 설정 - 전원 - 절전 안함
+        - flash player설치
+            - firefox를 켜고 http://get.adbo.com/kr/flashplayer에서 설치
+            - terminal에서 cd
+            - cd 다운로드(한글 키를 입력시에는 상단 약간 우측에 en을 한으로 바꿔야)
+            - ls
+            - rpm -Uvh flash*
+        - Client 설정
+            - root사용자로 접속할 수 없게 설정한다.
+            - centos사용자로 접속
+            - 터미널을 켜고 su - 
+            - gedit /etc/pam.d/gdm-password
+            - auth required pam_succeed_if.so user!=root quiet 추가
+            - 하고 나서 재부팅하고 root접속 시도하면 실패할 것이다.
+            - 이외의 설정은 동일하게 진행하되 네트워크 설정, 보안 설정은 제외하고 진행
+            - centos - 사용자 - 잠금 해제 - 켬으로 설정(자동로그인 설정이다.)
+            - 재부팅
+            - 이제 자동으로 centos 사용자로 로그인된다.
+        - Server(B)설정
+            - cli환경에서 설정해야 함. 해당 내용은 교재 참조하자..
+        - WinClient 설치
+            - 해당 가상머신은 windows 10 LTSB버전으로 설치하여씀
+            - <a href="https://www.microsoft.com/ko-kr/evalcenter/evaluate-windows-10-enterprise">링크</a>
+            - 이를 mount시켜 설치한 다음, 설치 후 부팅했을 때 VMware tool을 설치하자.
+            - VMware tool은 좌측 상단의 players - manager - install xx이다.
