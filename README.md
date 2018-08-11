@@ -141,3 +141,5 @@
             - <a href="https://www.microsoft.com/ko-kr/evalcenter/evaluate-windows-10-enterprise">링크</a>
             - 이를 mount시켜 설치한 다음, 설치 후 부팅했을 때 VMware tool을 설치하자.
             - VMware tool은 좌측 상단의 players - manager - install xx이다.
+### 1. 리눅스를 위한 필수 개념 및 명령어
+- *essential_concept.md*참조
