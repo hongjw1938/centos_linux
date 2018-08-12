@@ -24,4 +24,9 @@
     - 런레벨 모드를 확인하고 싶은 경우 : */lib/systemd/system/runlevel?.target*파일을 확인
     - 해당 파일들은 모두 링크 파일이다. 실제 파일로 연결되어 있음(sbin아래에 시스템 바이너리 파일로 존재함)
     - `ls -l default.target`을 확인해보면 현재 Server는 그래픽 다중 사용자 모드로 지정되어 있음을 알 수 있다.
-    - 
+- default run level 변경하기
+    - ln 명령얼를 이용해 sysbolic link를 걸어주면 된다.
+    - `ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default` 를 하면 default run level이 3인 텍스트모드로 지정된다.
+    - reboot을 이용해 재부팅하면 텍스트모드로 되는 것을 확인할 수 있다.
+    - 텍스트 모드로 부팅된 상태에서 x윈도를 켜기 위해서는 `startx`를 하면 된다. 그러면 폴더 이름을 변경하겠냐는 메세지가 나오는데 기존으로 유지하면 된다.
+    - 다시 터미널을 이용해 ln 명령어로 default run level을 graphical.target으로 변경하면 된다.
