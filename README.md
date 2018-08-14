@@ -141,5 +141,9 @@
             - <a href="https://www.microsoft.com/ko-kr/evalcenter/evaluate-windows-10-enterprise">링크</a>
             - 이를 mount시켜 설치한 다음, 설치 후 부팅했을 때 VMware tool을 설치하자.
             - VMware tool은 좌측 상단의 players - manager - install xx이다.
+- 리눅스 su권한 얻기
+    - su -c '명령' : 이와 같이 진행하면 root user의 권한으로 진행할 수 있다.
 ### 1. 리눅스를 위한 필수 개념 및 명령어
 - *essential_concept.md*참조
+### 2. X윈도 사용
+- *Xwindow.md*참조
