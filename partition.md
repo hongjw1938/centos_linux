@@ -140,3 +140,26 @@
         - ls 명령어로 raid0를 확인시 당연히 testFile은 보이지 않아야 한다.
         - 만약 보인다고 해도 그것은 완벽한 파일이 아니다.. 따라서 mkfs로 포맷하자.(umount로 마운트를 제거한 후 해야함)
         - 또한, Linear쪽에서 testFile이 보일 수도 있다. 이것은 운이 좋게도, 데이터가 2GB였던 곳에 저장한 상태에서 1GB짜리 후순위 하드를 고장냈기 때문이다. 이를 항상 기대해선 안된다..
+- 고급 RAID 레벨
+    - RAID 6
+        - 6는 패리티를 2개 사용한다고 했다. 따라서 하드가 최소 4개 이상
+        - 실무는 당연히 7~8개 이상으로 구성함
+        - 구현방법은 5와 비슷함. 다만, 하드가 더 필요할 뿐
+    - RAID 0+1
+        - 1은 안전성(미러링), 0은 속도(분할 저장)이라고 보면 된다.
+    - 구현
+        - Server를 초기화하고 8개 하드를 만든다.
+        - RAID 6
+            - `mdadm --create /dev/md6 --level=6 --raid-devices=4 /dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1`
+            - 이후 `mdadm --detail /dev/md6`로 확인
+            - `mkfs.ext4 /dev/md6`로 포맷
+            - `mkdir /raid6`로 만들고 `mount /dev/md6 /raid6`로 마운트 시킨다.
+        - RAID 0+1
+            - `mdadm --create /dev/md2 --level=1 --raid-devices=2 /dev/sdf1 /dev/sdg1`
+            - `mdadm --create /dev/md3 --level=1 --raid-devices=2 /dev/sdh1 /dev/sdi1`
+            - raid1을 두 개 만들고 두 RAID 1장치를 RAID 0으로 묶는다.
+            - `mdadm --create /dev/md10 --level=0 --raid-devices=2 /dev/md2 /dev/md3`
+            - `mkfs.ext4 /dev/md10`으로 포맷
+            - `mkdir /raid10`으로 만들고 `mount /dev/md10 /raid10`으로 마운트 시킨다.
+        - 아무 파일이나 복사해서 raid6 과 raid10에 넣자
+        - 시스템을 종료하고 문제발생 테스트를 진행한다.
