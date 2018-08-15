@@ -204,3 +204,67 @@
             - `mkfs.ext4 /dev/myVG/myLG1~3`
             - 이제 mkdir로 각 디렉토리를 만들고 각각을 mount시키자.
             - /etc/fstab에 각각의 myLG를 자동 mount하도록 설정하고 재부팅하면 된다.
+- RAID 1에 CentOS설치
+    - 가상머신을 새로 만든다.
+    - 파티션을 분할 할 때, swap과 root를 RAID 1레벨로 지정하여 만들면 된다.
+    - 나머지는 같음. 교재 참조
+- 사용자별 공간 할당
+    - 리눅스는 여러 사용자가 동시 접속해 사용한다.
+    - 만약, A라는 사용자가 시스템 사용시에 /파일 시스템에 고의든 실수든 큰 파일들을 계속 복사했다고 가정하자. 하드가 꽉 차면 시스템 전체가 가동되지 않는다!
+    - 이런 것을 방지하기 위해 각 사용자별로 사용가능한 용량을 제한해야 한다. 즉, 사용자가 적정 용량 이상을 사용치 못하게 하여 할당된 양만큼의 공간만 사용하게 한다면 문제가 발생ㅎ아지 않을 것이다.
+    - 쿼터
+        - 쿼터는 파일 시스템마다 사용자나 그룹이 생성할 수 있는 파일의용량과 개수를 제한하는 것을 의미
+        - 구현
+            - Server초기화
+            - 새로운 하드디스크를 장착시키고 부팅하여 root접속
+            - /dev/sdb의 파티션을 생성하고 포맷한 다음, /userHome이라는 디렉토리에 mount
+            - 그리고 /etc/fstab에 추가
+            - 실습을 위해 유저 2을 만든다. `useradd -d /userHome/john john`, bahn도 만들자
+            - passwd는 hostname과 같이 하자
+            - vi /etc/fstab으로 하고 defaults,usrjquota=aquota.user,jqfmt-vfsv0으로 변경
+            - `mount --options remount /userHome`을 통해 재마운트한다.
+            - mount로 확인해보면 /dev/sdb1 디렉터리가 쿼터용으로 마운트된 것을 확인할 수 있다.
+        - 쿼터를 사용하기 위해서 쿼터 DB를 생성한다.
+        - 구현
+            - cd /userHome
+            - `quotaoff -avug` : 일단 쿼터를 끈다
+            - `quotacheck -augmn` : 파일 시스템의 쿼터 관련 체크
+            - `rm -rf aquota.*` : 생성된 쿼터 파일 삭제
+            - `quotacheck -augmn` : 다시 파일 시스템의 쿼터 관련 체크
+            - `touch aquota.user aquota.group` : 쿼터 관련 파일 생성
+            - `chmod 600 aquota.*` : 권한 변경(소유자만 가능토록)
+            - `quotacheck -augmn` : 쿼터 체크
+            - `quotaon -avug` : 쿼터 시작
+        - 명령어
+            - quotacheck는 하드디스크를 스캔해 여러 가지 부분을 체크하는 기능
+            - quotaon/off는 설정된 쿼터를 끄거나 켠다.
+            - 옵션
+                - -a : 모든 파일 시스템 체크
+                - -u : 모든 사용자 쿼터 관련 체크
+                - -g : 그룹 쿼터 관련 체크
+                - -m : 재마운트를 생략
+                - -n : 첫 번째 검색된 것을 사용함
+                - -p : 처리 결과를 출력
+                - -v : 파일 시스템의 상태를 보여줌
+    - 각 사용자별 공간 할당
+        - 공간을 각각 john과 bahn에게 10MB씩 할당
+        - `edquota -u john` 을 입력시 각 사용자별 또는 그룹별 할당량을 편집 가능
+        - 사용법은 vi에디터와 동일
+        - 각 의미
+            - Filesystem : 사용자별 쿼터를 할당하는 파일 시스템 앞에서는 /etc/fstab에서 했었다.
+            - blocks, soft, hard : 현재 사용자가 사용하는 블록과 소프트 사용 한도, 하드 사용 한도를 의미
+                - blocks가 28이면 현재 john이 28kb를 사용. soft와 hard가 0이면 사용한도 제한이 없단것.
+            - inodes, soft, hard : inode의 개수. soft, hard는 한도
+        - blocks부분에 soft 10MB, hard 15MB로 제한하고 저장한다.
+        - 칸을 맞출 필요는 없다.  이제는 john사용자가 사용가능한 용량이 설정대로 제한되어 있는지 확인
+        - `su - john` : john으로 접속
+        - `cp /boot/vmlinuz-3* test1` : 약 4.7MB
+        - `cp test1 test2` : 약 9.4MB
+        - `cp test1 test3` : 약 14.1MB(소프트한도 초과)
+        - `cp test1 test4` : 약 18.8MB(하드 한도 초과. 더 사용 불가.)
+        - 하드 한도를 초과하여 test4파일은 하드 한도까지만 파일이 생성된다. 따라서 test4는 정상적인 파일이 아님
+        - john사용자는 `quota`명령어로 자신에게 할당된 하드디스크 공간을 확인가능
+        - 잘 살펴보면 john에게 할당된 것인 limit의 내용이 아닌 quota의 내용
+        - 그래서 quota를 넘는 부분 즉, limit - quota는 grace만큼만 유효함. 그 기간동안 공간을 정리해야 한다.
+        - root로 이동하고 `repquota /userHome`으로 사용자별 현재 사용량을 확인하자.
+        - bahn에게 john하고 같은 수준으로 할당하고 싶다면 `edquota -p john bahn`으로 하면 된다.
