@@ -147,3 +147,5 @@
 - *essential_concept.md*참조
 ### 2. X윈도 사용
 - *Xwindow.md*참조
+### 3. 하드디스크 관리, 사용자별 공간 할당
+- *partition.md*참조
