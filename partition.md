@@ -268,3 +268,4 @@
         - 그래서 quota를 넘는 부분 즉, limit - quota는 grace만큼만 유효함. 그 기간동안 공간을 정리해야 한다.
         - root로 이동하고 `repquota /userHome`으로 사용자별 현재 사용량을 확인하자.
         - bahn에게 john하고 같은 수준으로 할당하고 싶다면 `edquota -p john bahn`으로 하면 된다.
+        - 참고로 소프트 한도 초과에 대한 유예기간의 기본값은 7days이다. 이를 조정하려는 경우 `edquota -t`로 변경할 수 있다.
