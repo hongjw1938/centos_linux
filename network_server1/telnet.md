@@ -28,4 +28,18 @@
     - 다시 접속을 시도하고 ifconfig를 해보면 접속된 것을 알 수 있다.
     - root사용자는 접속이 안된다. 그러나 꼭 사용하고 싶다면?
         - mv /etc/securetty /etc/securetty.bak으로 이름 바꾸고, 재접속해본다.. 즉, security check하지 않도록
-        - 
+### OpenSSH서버
+- OpenSSH
+    - 텔넷과 용도는 같으나, 보안이 강화됨.
+    - 텔넷은 현재 클라이언트 - 서버 데이터 전송시 암호화를 하지 않기 때문에 해킹 위험에 노출되어 있다.
+    - 이러한 문제로 스니핑과 같은 해킹의 위험에 노출될 수 있으므로, 암호화할 필요가 있다. 이를 해결한 것이 OpenSSH
+    - 패키지 이름은 openssh-server이며, 서비스 이름은 sshd
+- 설치
+    - 패키지를 확인 : `rpm -qa openssh-server`
+    - 가동여부 확인 : `systemctl status sshd`
+    - 설치 : `yum -y install openssh-server`
+- 접속
+    - `ssh 호스트이름@ip주소`로 접속 가능
+- windows접속
+    - 노트북 혹은 데탑에 putty설치
+    - 해당 내용은 따로 참조할 것
