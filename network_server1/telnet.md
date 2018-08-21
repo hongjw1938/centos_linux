@@ -43,3 +43,27 @@
 - windows접속
     - 노트북 혹은 데탑에 putty설치
     - 해당 내용은 따로 참조할 것
+### VNC서버
+- VNS서버
+    - 텔넷과 ssh는 x윈도 환경을 지원하지 않는다.
+    - VNC는 x윈도 환경 지원
+    - 별도의 클라이언트가 필요하며, 그래픽 화면을 전송하기에 속도가 느리다.
+- 설치
+    - 설치 전에 centos 호스트로 접속한 번 할 것.
+    - `yum -y install tigervnc-server`
+- 사용
+    - 접속할 사용자 지정
+    - 사용자에 디스플레이 번호 할당 : 여기서는 centos사용자에게 1번
+    - 우선, `cp /lib/systemd/system/vncserver@.service /etc/systemd/system/vncserver@:1.service`
+        - 해당 명령은 서비스 원본 설정 파일을 centos 사용자 설정 파일용으로 복사하는 것.
+    - `vi /etc/systemd/system/vncserver@:1.service`로 편집
+        - 약 40~41행 즈음에 있는 <USER> 부분을 VNC사용자로 지정한 centos로 변경. 첫 번째는 사용자 이름이며, 두 번째는 사용자의 홈 디렉터리 지정
+    - firewall-config에서 vnc-server서비스 허용
+    - centos사용자로 접속 : `su - centos`
+    - 서비스 시작 : `vncserver` 
+    - 서비스를 시작하면 vnc를 위한 전용 비밀번호를 6자리 이상으로 지정해야 한다.
+- 접속
+    - client에서 서버로 접속해본다.
+    - centos사용자로 접속하고 터미널을 연 다음, Client설치 : `rpm -qa tigervnc` , `su -c yum -y install tigervnc`
+    - `vncviewer 192.168.111.100:1` 하고 비밀번호 입력해 접속
+- 주의 : VNC클라이언트에서 내리는 명령어는 server에서 직접 명령을 내리는 것과 동일하다. halt -p등으로 종료하면 진짜 종료됨
