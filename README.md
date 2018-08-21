@@ -151,3 +151,5 @@
 - *partition.md*참조
 ### 4. 쉘 스크립트
 - *shell_script.md*참조
+### 5. 네트워크 서버 실무 구축
+- *network_server1/*하위 참조

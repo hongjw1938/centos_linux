@@ -1,0 +1,31 @@
+### 텔넷서버
+- 텔넷
+    - 현재는 아니지만, 한동안 인기있어왔던 원격지 서버 접속 방법
+    - 리눅스에 텔넷 서버가 설치되었다면, 서버에 접속할 pc에는 클라리언트 필요
+- 설치
+    - 설치확인 : `rpm -qa telnet-server`
+    - 아무것도 안나오면 설치 : `yum -y install telnet-server`
+- 서비스 시작
+    - `systemctl 작동 옵션 서비스또는소켓이름`으로 실행가능
+    - 시작 : `systemctl start telnet.socket`
+    - 상태 확인 : `systemctl status telnet.socket`
+    - active라면 작동중인 것. 포트는 아마 23번을 사용할 것이다.
+- 접속 시도
+    - 클라이언트 설치 : `yum -y install telnet`
+    - 접속 : `telnet 192.168.111.100`
+    - 자신의 컴퓨터도 물론 가능하다. 위와 같이 하는 경우 자기 자신을 스스로 telnet으로 접속
+- 외부 접속 시도
+    - 제어판 - 프로그램 및 기능 에서 windows기능 켜기/끄기 부분을 클릭하고 telnet 클라이언트를 활성화
+    - cmd를 켜고 `telnet 192.168.111.100`
+    - 하지만 접속 안됨. 왜냐면 방화벽 설정이 되지 않았다.
+    - 기존에 설치시에 서버 서비스를 대부분 허용하지 않도록 설치했었다..
+    - 방화벽설정
+        - 터미널에서 `firewall-config`로 설정
+        - 설정을 영구적으로 바꾸고 telnet을 클릭한 후, 옵션-Firewalld 다시 불러오기 선택
+        - `systemctl enable telnet.socket` : 재부팅시에도 텔넷 가동
+        - 텍스트 모드에서 설정시 : `firewall-cmd --add-service=서비스이름` 또는 `firewall-cmd --add-port=포트번호/프로토콜`, 재부팅때도 시작시에는 --permanent추가
+            - reload는 `firwall-cmd --reload`
+    - 다시 접속을 시도하고 ifconfig를 해보면 접속된 것을 알 수 있다.
+    - root사용자는 접속이 안된다. 그러나 꼭 사용하고 싶다면?
+        - mv /etc/securetty /etc/securetty.bak으로 이름 바꾸고, 재접속해본다.. 즉, security check하지 않도록
+        - 
