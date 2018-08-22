@@ -1,0 +1,37 @@
+### 메일서버
+- 이메일 송수신에 사용되는 프로토콜
+    - SMTP(Simple Mail Transfer Protocol) : 클라이언트가 메일을 보내거나, 메일 서버끼리 메일을 주고 받을 때 사용
+    - POP3(Post Office Protocol) : 메일 서버에 도착한 메일을 클라이언트로 가져올 때 사용
+    - IMAP(Internet Mail Access Protocel) : POP3와 같은 용도
+- 메일을 주고받는 과정
+    - kim이라는 사람이 daum.net이라는 메일 서버에 계정이 있다.
+    - kim@daum.net이라는 계정은 lee라는 사람의 naver.com이라는 메일서버의 계정에 메일을 보내고자 한다.
+    - 그러면 kim은 PC1에서 메일 클라이언트 프로그램(에볼루션, outlook등)을 이용해서 daum.net에 접속해 내용을 채우고 메일을 보낸다.
+    - 메일 서버1은(daum.net) kim의 메일을 임시 장소에 보관하고, 시간이 생기면 naver.com의 메일서버 IP주소를 네임서버에게 요청해 알아낸다.
+    - daum.net은 메일을 인터넷을 통해 메일 서버2(naver.com)에게 전송한다.(여기까지는 SMTP프로토콜 사용)
+    - 메일서버2는 1로부터 받은 메일의 수신자 이름을 확인하고 해당 계정이 존재시 그의 메일 박스에 받은 메일을 넣어둔다.
+    - lee는 PC2에서 메일 클라이언트 프로그램을 실행해 naver.com에 접속해 POP3/IMAP프로토콜을 사용해 kim으로부터 온 메일을 자신의 PC2로 보내고 확인한다.
+- SendMail입장에서 본 과정
+    - 메일 클라이언트1(MUA : Mail User Agent)는 SMTP프로토콜을 이용해, 메일 서버 1의 센드메일 서비스(=데몬)에게 메일을 보내달라고 요청한다.
+    - 센드메일 서비스는 메일을 '메일 큐'에 넣어 놓는다.(/var/spool/mqueue)
+    - 센드메일 서비스는 시간이 되면 (MDA : Mail Delivery Agent)에게 메일을 보내달라고 요청한다.
+    - MDA는 SMTP 프로토콜을 이용해 메일 서버2의 센드메일 서비스에 메일을 전송한다.
+    - 메일 서버2의 센드메일 서비스는 받은 메일을 MDA를 통해 사용자의 메일 박스에 넣어 놓는다.
+    - 메일 클라이언트2는 메일 서버 2의 dovecot 서비스에게 자신의 메일을 달라고 요청한다.
+- 센드메일 서버 구현
+    - CentOS에서 기본으로 제공함
+    - 메일서버 2개를 설치해서 실습 효과를 파악해야 한다. 인터넷 상에서 2개의 다른 도메인으로 메일 서버를 운영해야만 메일이 잘 전송되는지 확인 가능하다.
+    - 네트워크 환경이 조금 복잡해 지지만, VMware의 장점을 활용한다.
+    - 환경
+        - VMware내부의 사설 네트워크를 내부 네트워크가 아닌, 외부 인터넷으로 간주
+        - 메일 서버 2대 구현, Server를 naver.com 메일 서버로 구현하고, Server(B)를 daum.net 메일 서버로 구현
+        - Client는 naver.com메일 서버의 lee라는 계정의 사용자 PC, 즉 lee@naver.com이라는 계정이 사용할 PC
+        - WinClient는 daum.net메일 서버의 kim사용자의 PC. 즉, kim@daum.net계정이 사용할 PC
+        - Server는 네임 서버 및 메일 서버의 역할을 겸하도록 한다.
+        - 모든 컴퓨터는 DNS 이름 서버를 192.168.111.100로 사용
+    - 실제 구현은 교재 참조
+- 웹 메일
+    - 실제 대부분의 유저는 에볼루션, 썬더버드, 아웃룩 등을 사용하지 않는다.
+    - 대부분은 웹을 통해서 email을 주고 받는다. 이 것이 웹 메일
+    - Squirrelmail : php로 만들어졌으며, sendmail과 IMAP 서버를 기반으로 둔 웹 메일 프로그램 이다. 반드시 아파치 웹 서버와 PHP가 설치되어 있어야 한다.
+    - `wget http;//mirrors.kernel.org/fedora/releases/20/Everything/x86_64/os/Packages/s/squirrelmail-1.4.22-13.fc20.noarch.rpm`으로 설치
