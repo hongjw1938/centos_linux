@@ -1,0 +1,23 @@
+### ftp server
+- FTP
+    - File Transfer Protocol : 파일을 전송하는데 사용하는 전용 서비스
+    - 지금은 웹에서도 가능하기에 많이 인기가 떨어졌다.
+- vsftpd
+    - very secure ftp는 CentOS에서 기본으로 제공
+    - 리눅스, 유닉스 환경에서 보안성과 성능이 우수한 FTP 서버로 인정받고 있다.
+    - http://vsftpd.beasts.org/에서 다운로드 가능
+    - yum명령어로도 가능
+- 구현
+    - Server에서 설치
+    - vsftpd에 anonymous으로 접속되는 디렉터리는 /var/ftp다. 
+    - anonymous사용자는 ftp 전용의 사용자로 모든 리눅스에 내장된 사용자.
+        - 특별히 암호 없이도 ftp 서버에 접속할 수 있다.
+        - 외부에서 접속시에는 사용자 이름이 anonymous지만, 리눅스 내부에서는 ftp라는 이름으로 사용된다.
+        - 그리고 이 ftp 사용자의 홈 디렉터리는 /var/ftp/다. 따라서 anonymous로 접속시 /var/ftp가 된다.
+    - 이후 구현은 교재 참조
+- proftpd
+    - 주로 대형 사이트에서 오랫동안 인기가 있던 ftp
+    - vsftpd와 동일하나 설정 방법이 조금 다름
+- Pure-FTPd
+    - 2001년에 제작됨.
+    - Troll-FTPd를 기반으로 제작됨
